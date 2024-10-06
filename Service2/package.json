@@ -1,0 +1,22 @@
+{
+  "name": "service2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.cjs",
+  "type": "module",
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "dockerode": "^4.0.2",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.31",
+    "@types/node": "^22.7.4",
+    "ts-node": "^10.4.0",
+    "typescript": "^5.6.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.cjs"
+  }
+}
