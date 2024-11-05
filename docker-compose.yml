@@ -14,7 +14,7 @@ services:
       - ridvanContainer
    # hostname: service1_hostname
     environment:
-      - HOSTNAME = exposed_to_outside_service1.v1
+      - HOSTNAME=exposed_to_outside_service1.v1
   service2:
     build: ./Service2
     image: internal_service2_image.v1
@@ -27,7 +27,7 @@ services:
       - 8199 #eposed only internally
     #hostname: service2_hostname
     environment:
-      - HOSTNAME = internal_service2.v1
+      - HOSTNAME=internal_service2.v1
 networks:
   ridvanContainer:
     name: COMPSE140_custom_network
