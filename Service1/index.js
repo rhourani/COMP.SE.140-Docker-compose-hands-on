@@ -22,7 +22,7 @@ app.get('/request', async (_req, res) => {
             service2: service2Info.data
         });
         await sleep(2000);
-        setTimeout(() => console.log(service1Info .containerName + ' ready to take another request'), 20000);
+        setTimeout(() => console.log(service1Info .containerName + ' ready to take another request'), 2000);
         
     } catch(error){
         res.status(500).json({ error: error.message });
