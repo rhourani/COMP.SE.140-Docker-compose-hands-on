@@ -1,9 +1,0 @@
-o The used LLM tool: Microsoft Copilot
-o Motivation/reason to use LLM: I am not experinced in typescript, I have used it to convert my code from javascript to typescript
-o How and why LLM helped"
-It hepled me converting the code from JS to TS, after that I used it to help me with understanding how the configuration can be done for
-typescript project.
-o What kind of mistakes LLM did: It was fine, but I have checked other resources on the interent to verify that configurations are correct
-and actually LLM was better in this regard comparing to other resoucres on youtube. I have not checked official documentations as I have 
-other deliveries and needed some quick assistance.
-o What were things that LLM was not able to provide: I have used it for small specific task, and therefore, it was good in it.
