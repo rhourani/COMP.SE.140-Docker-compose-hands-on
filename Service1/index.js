@@ -9,7 +9,9 @@ const port = process.env.PORT || 8199;
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
-app.get('/', async (_req, res) => {
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+app.get('/request', async (_req, res) => {
     try {
         const service1Info = await getServiceInfo();
         const service2Info = await axios.get('http://service2:8199');
@@ -19,14 +21,40 @@ app.get('/', async (_req, res) => {
             service1: service1Info,
             service2: service2Info.data
         });
+        await sleep(2000);
+        setTimeout(() => console.log(service1Info .containerName + ' ready to take another request'), 20000);
+        
     } catch(error){
         res.status(500).json({ error: error.message });
     }
 });
 
+app.post('/stop', (req, res) => {
+    res.send('Shutting down...');
+    exec('docker-compose down', (error, stdout, stderr) => {
+        if(error){
+       	   console.error('Error shutting down: ${error}');
+       	   return res.status(500).send('Error sutting down');
+        }
+        console.log(stdout);
+        res.status(200).send(200).send('Shutting down...');
+    	process.exit();
+    });
+
+});
+
+
 async function getServiceInfo(){
-    const container = docker.getContainer(process.env.HOSTNAME);
+
+    const containers = await docker.listContainers({
+         filters: {
+             label: ['service=sexposed_to_outside_service1.v1']
+             }
+            });
+    const containerId = containers.find(c => c.State === 'running').Id; 
+    const container = docker.getContainer(containerId);
     const info = await container.inspect();
+    const containerName = info.Name;
     const ip = info.NetworkSettings.Networks['COMPSE140_custom_network'].IPAddress;
 
     const processes = await execCommand('ps -ax');
@@ -34,6 +62,7 @@ async function getServiceInfo(){
     const uptime = await execCommand('uptime -p');
 
     return {
+        containerName,
         ip,
         processes,
         diskSpace,

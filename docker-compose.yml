@@ -1,11 +1,21 @@
 version: '3'
 services:
+  nginx:
+    build: .
+    image: nginx-image
+    ports:
+      - "8198:8198"
+    depends_on:
+      - service1
+    networks:
+      - ridvanContainer
+        
   service1:
     build: ./Service1
     image: exposed_to_outside_service1_image.v1
-    container_name: exposed_to_outside_service1.v1
-    ports:
-      - "8199:8199"
+    #container_name: exposed_to_outside_service1.v1
+    expose:
+      - "8199"
     depends_on:
       - service2
     volumes:
@@ -14,7 +24,13 @@ services:
       - ridvanContainer
    # hostname: service1_hostname
     environment:
-      - HOSTNAME=exposed_to_outside_service1.v1
+      - HOSTNAME=service1
+      #- HOSTNAME=exposed_to_outside_service1.v1
+    deploy:
+      replicas: 3  
+    labels: 
+      - "service=sexposed_to_outside_service1.v1"
+    
   service2:
     build: ./Service2
     image: internal_service2_image.v1
@@ -24,11 +40,10 @@ services:
     networks:
       - ridvanContainer
     expose:
-      - 8199 #eposed only internally
+      - 8199 #exposed only internally
     #hostname: service2_hostname
     environment:
       - HOSTNAME=internal_service2.v1
 networks:
   ridvanContainer:
     name: COMPSE140_custom_network
-
