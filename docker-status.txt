@@ -1,18 +1,3 @@
-PS C:\Users\Admin\source\repos\exercise1> docker container ls
-CONTAINER ID   IMAGE                                  COMMAND                  CREATED         STATUS         PORTS                    NAMES       
-5b06f406d6c1   exposed_to_outside_service1_image.v1   "docker-entrypoint.s…"   2 minutes ago   Up 8 seconds   0.0.0.0:8199->8199/tcp   exposed_to_outside_service1.v1
-50f24c4e4f67   internal_service2_image.v1             "docker-entrypoint.s…"   2 minutes ago   Up 9 seconds   8199/tcp                 internal_service2.v1
-
-PS C:\Users\Admin\source\repos\exercise1> docker network ls
-NETWORK ID     NAME                                                                 DRIVER    SCOPE
-c5aa344bbdba   COMPSE140_custom_network                                             bridge    local
-f3c1be6396f7   bridge                                                               bridge    local
-1e1fd23d7534   host                                                                 host      local
-c282a7ff3b96   none                                                                 null      local
-c7b25dba78da   saniewski_mongo-express-docker-extension-desktop-extension_default   bridge    local
-
-FOR EXERCISE 4
-
 root@xxxx-Virtual-Machine:/home/xxxx/COMP.SE.140-Docker-compose-hands-on# docker container ls
 CONTAINER ID   IMAGE                                  COMMAND                  CREATED          STATUS          PORTS                                               NAMES
 a76f54ce8e3c   exposed_to_outside_service1_image.v1   "docker-entrypoint.s…"   20 minutes ago   Up 20 minutes   8199/tcp                                            compse140-docker-compose-hands-on_service1_2
