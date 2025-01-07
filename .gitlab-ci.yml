@@ -12,6 +12,10 @@ before_script:
 
 build:
   stage: build
+  tags: 
+    - docker 
+    - linux 
+    - nodejs
   script:
     - docker-compose build --no-cache
 
