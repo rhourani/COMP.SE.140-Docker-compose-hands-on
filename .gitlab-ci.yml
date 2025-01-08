@@ -29,10 +29,10 @@ test:
   stage: test 
   script: 
     - docker-compose up -d 
-    - docker-compose exec service1 npm install 
-    - docker-compose exec service1 npm test 
-    - docker-compose exec service2 npm install 
-    - docker-compose exec service2 npm run test 
+    - docker-compose exec -T service1 npm install 
+    - docker-compose exec -T service1 npm test 
+    - docker-compose exec -T service2 npm install 
+    - docker-compose exec -T service2 npm run test 
  
 deploy: 
   stage: deploy 
