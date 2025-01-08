@@ -15,9 +15,9 @@ variables:
 before_script: 
   - apk update 
   - apk add --no-cache curl 
-  - curl -L "https://github.com/docker/compose/releases/download/latest/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/docker-compose 
-  - chmod +x /usr/local/docker-compose 
-  - if [ ! -f /usr/local/docker-compose ]; then echo "Docker Compose download failed"; exit 1; fi 
+  - curl -L "https://github.com/docker/compose/releases/download/latest/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose 
+  - chmod +x /usr/bin/docker-compose 
+  - if [ ! -f /usr/bin/docker-compose ]; then echo "Docker Compose download failed"; exit 1; fi 
   - docker info 
   - docker-compose --version
  
