@@ -3,7 +3,7 @@ stages:
   - test 
   - deploy 
  
-image: docker:stable
+image: docker-compose:latest
  
 services: 
   - docker:dind 
@@ -13,11 +13,6 @@ variables:
   DOCKER_TLS_CERTDIR: "" 
  
 before_script: 
-  - apk update 
-  - apk add --no-cache curl 
-  - curl -L "https://github.com/docker/compose/releases/download/latest/docker-compose-$(uname -s)-$(uname -m)" -o /snap/bin/docker-compose 
-  - chmod +x /snap/bin/docker-compose 
-  - if [ ! -f /snap/bin/docker-compose ]; then echo "Docker Compose download failed"; exit 1; fi 
   - docker info 
   - docker-compose --version
  
