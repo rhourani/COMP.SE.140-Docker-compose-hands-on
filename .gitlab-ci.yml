@@ -6,13 +6,6 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
 
-before_script:
-  - export DOCKER_PATH=$(which docker) 
-  - if [ -z "$DOCKER_PATH" ]; then echo "Docker not found"; exit 1; fi 
-  - export PATH=$PATH:$(dirname $DOCKER_PATH)
-  - docker info
-  - docker-compose --version
-
 build:
   stage: build
   tags: 
