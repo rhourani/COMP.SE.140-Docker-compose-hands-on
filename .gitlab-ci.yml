@@ -13,8 +13,6 @@ variables:
   DOCKER_TLS_CERTDIR: ""
 
 before_script:
-  - apt-get update
-  - apt-get install -y docker.io
   - docker info
   - docker-compose --version
   - docker build -t my-image .
