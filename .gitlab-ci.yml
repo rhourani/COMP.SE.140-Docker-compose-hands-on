@@ -7,7 +7,8 @@ variables:
   DOCKER_DRIVER: overlay2
 
 before_script:
-  - export PATH=$PATH:/usr/local/bin
+  - apt-get update
+  - apt-get install -y docker.io
   - docker info
   - docker-compose --version
 
