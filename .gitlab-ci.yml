@@ -25,17 +25,17 @@ build:
   script: 
     - docker-compose build --no-cache 
  
-# test: 
-#   stage: test 
-#   script: 
-#     - docker-compose up -d 
-#     - docker-compose exec -T service1 npm install 
-#     - docker-compose exec -T service1 npm test 
-#     - docker-compose exec -T service2 npm install 
-#     - docker-compose exec -T service2 npm run test 
+test: 
+  stage: test 
+  script: 
+    - docker-compose up -d 
+    - docker-compose exec -T service1 npm install 
+    - docker-compose exec -T service1 npm test 
+    - docker-compose exec -T service2 npm install 
+    - docker-compose exec -T service2 npm run test 
   
-#   after_script: 
-#     - docker-compose down
+  after_script: 
+    - docker-compose down
 
 deploy: 
   stage: deploy 

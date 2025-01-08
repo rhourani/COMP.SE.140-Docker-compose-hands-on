@@ -10,6 +10,12 @@
     "express": "^4.21.0"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "jest"
+
+
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
