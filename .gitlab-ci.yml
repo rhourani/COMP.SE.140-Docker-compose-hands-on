@@ -33,8 +33,6 @@ test:
     - docker-compose exec service1 npm test 
     - docker-compose exec service2 npm install 
     - docker-compose exec service2 npm run test 
-  after_script: 
-    - docker-compose down 
  
 deploy: 
   stage: deploy 
