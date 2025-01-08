@@ -46,4 +46,5 @@ services:
       - HOSTNAME=internal_service2.v1
 networks:
   ridvanContainer:
-    name: COMPSE140_custom_network
+    #name: COMPSE140_custom_network
+    driver: bridge
