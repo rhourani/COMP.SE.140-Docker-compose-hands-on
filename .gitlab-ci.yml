@@ -3,7 +3,7 @@ stages:
   - test 
   - deploy 
  
-image: docker-compose:latest
+image: docker/compose:latest
  
 services: 
   - docker:dind 
