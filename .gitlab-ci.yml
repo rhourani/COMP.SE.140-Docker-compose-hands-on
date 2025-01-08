@@ -7,7 +7,8 @@ variables:
   DOCKER_DRIVER: overlay2
 
 before_script:
-  - export PATH=$PATH:/usr/bin/docker
+  - export DOCKER_PATH=$(which docker) 
+  - export PATH=$PATH:$(dirname $DOCKER_PATH)
   - docker info
   - docker-compose --version
 
