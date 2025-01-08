@@ -3,19 +3,13 @@ stages:
   - test
   - deploy
 
-image: docker:stable
-
-services:
-  - docker:dind
-
 variables:
   DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
 
 before_script:
+  - export PATH=$PATH:/usr/local/bin
   - docker info
   - docker-compose --version
-  - docker build -t my-image .
 
 build:
   stage: build
