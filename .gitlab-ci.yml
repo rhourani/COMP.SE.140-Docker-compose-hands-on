@@ -1,0 +1,45 @@
+stages: 
+  - build 
+  - test 
+  - deploy 
+ 
+image: docker/compose:latest
+ 
+services: 
+  - docker:dind 
+ 
+variables: 
+  DOCKER_DRIVER: overlay2 
+  DOCKER_TLS_CERTDIR: "" 
+ 
+before_script: 
+  - docker info 
+  - docker-compose --version
+ 
+build: 
+  stage: build 
+  tags:  
+    - docker  
+    - linux  
+    - nodejs 
+  script: 
+    - docker-compose build --no-cache 
+ 
+test: 
+  stage: test 
+  script: 
+    - docker-compose up -d 
+    - docker-compose exec -T service1 npm install 
+    - docker-compose exec -T service1 npm test 
+    - docker-compose exec -T service2 npm install 
+    - docker-compose exec -T service2 npm run test 
+  
+  after_script: 
+    - docker-compose down
+
+deploy: 
+  stage: deploy 
+  script: 
+    - docker-compose up -d 
+  only: 
+    - main
