@@ -31,7 +31,7 @@ function getServiceInfo() {
     return __awaiter(this, void 0, void 0, function* () {
         const container = docker.getContainer(process.env.HOSTNAME);
         const info = yield container.inspect();
-        const ip = info.NetworkSettings.Networks['COMPSE140_custom_network'].IPAddress;
+        const ip = info.NetworkSettings.Networks['compse140-docker-compose-hands-on_ridvanContainer'].IPAddress;
         const processes = yield execCommand('ps -ax');
         const diskSpace = yield execCommand('df -h');
         const uptime = yield execCommand('uptime -p');

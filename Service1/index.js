@@ -25,6 +25,9 @@ app.get('/request', async (_req, res) => {
         setTimeout(() => console.log(service1Info .containerName + ' ready to take another request'), 2000);
         
     } catch(error){
+        console.log("here is some error");
+        console.log(error);
+
         res.status(500).json({ error: error.message });
     }
 });
@@ -43,6 +46,9 @@ app.post('/stop', (req, res) => {
 
 });
 
+let currentState = "INIT";
+
+app.put('/state', (req, res) => { res.send(currentState); });
 
 async function getServiceInfo(){
 
@@ -55,7 +61,7 @@ async function getServiceInfo(){
     const container = docker.getContainer(containerId);
     const info = await container.inspect();
     const containerName = info.Name;
-    const ip = info.NetworkSettings.Networks['COMPSE140_custom_network'].IPAddress;
+    const ip = info.NetworkSettings.Networks['compse140-docker-compose-hands-on_ridvanContainer'].IPAddress;
 
     const processes = await execCommand('ps -ax');
     const diskSpace = await execCommand('df -h');

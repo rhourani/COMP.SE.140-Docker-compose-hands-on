@@ -18,7 +18,7 @@ app.get('/', async (_req, res) => {
 async function getServiceInfo(): Promise<{ip: string; processes: string; diskSpace: string; uptime: string}>{
     const container = docker.getContainer(process.env.HOSTNAME as string);
     const info = await container.inspect();
-    const ip = info.NetworkSettings.Networks['COMPSE140_custom_network'].IPAddress;
+    const ip = "1.1.11.1"; //info.NetworkSettings.Networks['compse140-docker-compose-hands-on_ridvanContainer'].IPAddress;
 
     const processes = await execCommand('ps -ax');
     const diskSpace = await execCommand('df -h');
