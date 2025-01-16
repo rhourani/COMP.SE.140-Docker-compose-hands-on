@@ -4,6 +4,9 @@ services:
     image: nginx-image
     ports:
       - "8198:8198"
+      - "8197:8197"
+    volumes: 
+      - ./nginx.conf:/etc/nginx/nginx.conf 
     depends_on:
       - service1
     networks:
@@ -12,7 +15,6 @@ services:
   service1:
     build: ./Service1
     image: exposed_to_outside_service1_image.v1
-    #container_name: exposed_to_outside_service1.v1
     expose:
       - "8199"
     depends_on:
@@ -21,10 +23,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - ridvanContainer
-   # hostname: service1_hostname
     environment:
       - HOSTNAME=service1
-      #- HOSTNAME=exposed_to_outside_service1.v1
     deploy:
       replicas: 3  
     labels: 
@@ -40,10 +40,8 @@ services:
       - ridvanContainer
     expose:
       - 8199 #exposed only internally
-    #hostname: service2_hostname
     environment:
       - HOSTNAME=internal_service2.v1
 networks:
   ridvanContainer:
-    #name: COMPSE140_custom_network
     driver: bridge

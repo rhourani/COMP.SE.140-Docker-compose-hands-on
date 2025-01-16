@@ -1,9 +1,0 @@
-I found that container shares with the host the network, it does not share software libraries, 
-docker have them with it is own isolated, for network, we can specify customized network  for the container to work in 
-an isolated capsule, adding on that the ports, are needed to be shared for correct communication.
-
-In more specific words, the docker container is an isolated capsule for the software and what it needs from software libraries to be run.
-And the host, shares the operating system kernel, and the needed hardware resouces for the docker engine to be able work 
-(such as CPU, storage, RAM etc.)
-
-Also, containers does not include an operation system by itself, that is why it needs an OS kernel.
