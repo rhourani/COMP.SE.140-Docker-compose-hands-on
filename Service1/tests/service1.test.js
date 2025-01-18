@@ -1,5 +1,5 @@
 const request = require('supertest'); 
-const app ='service1:8197';
+const app ='Service1:8197';
 
 
 describe('API Tests', () => {
