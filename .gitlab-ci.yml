@@ -15,8 +15,7 @@ variables:
 before_script: 
   - docker info 
   - docker-compose --version
-  - export APP_IP=$(hostname -I | awk '{print $1}') 
-  - export APP_URL="http://$APP_IP:$APP_PORT"
+
  
 # build: 
 #   stage: build 
@@ -31,7 +30,9 @@ test:
   stage: test 
   script: 
     - echo $APP_URL 
-    - docker-compose up -d 
+    - docker-compose up -d
+    - export APP_IP=$(hostname -I | awk '{print $1}') 
+    - export APP_URL="http://$APP_IP:$APP_PORT"
     - docker-compose exec -T service1 npm install 
     - docker-compose exec -T service1 npm test 
     - docker-compose exec -T service2 npm install 
