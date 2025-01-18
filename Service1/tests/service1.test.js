@@ -1,5 +1,5 @@
 const request = require('supertest'); 
-const app = 'http://127.0.0.1:8197' || 'http://localhost:8197'; // Use environment variable or default to localhost
+const app = 'http://127.0.0.1:8197'; // Use environment variable or default to localhost
 
 
 describe('API Tests', () => {
