@@ -1,5 +1,5 @@
 const request = require('supertest'); 
-const app = 'http://localhost:8197'; // Replace with your actual server URL 
+const app = process.env.APP_URL || 'http://localhost:8197'; // Use environment variable or default to localhost
 
 
 describe('API Tests', () => {

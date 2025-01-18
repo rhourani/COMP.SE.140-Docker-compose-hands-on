@@ -10,9 +10,7 @@ services:
  
 variables: 
   DOCKER_DRIVER: overlay2 
-  DOCKER_TLS_CERTDIR: "" 
-  SERVICE1_HOST: "service1" 
-  SERVICE1_PORT: "8199"
+  DOCKER_TLS_CERTDIR: ""
  
 before_script: 
   - docker info 
