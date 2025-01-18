@@ -11,6 +11,8 @@ services:
 variables: 
   DOCKER_DRIVER: overlay2 
   DOCKER_TLS_CERTDIR: "" 
+  SERVICE1_HOST: "service1" 
+  SERVICE1_PORT: "8199"
  
 before_script: 
   - docker info 
@@ -28,6 +30,8 @@ before_script:
 test: 
   stage: test 
   script: 
+    - echo $SERVICE1_HOST 
+    - echo $SERVICE1_PORT
     - docker-compose up -d 
     - docker-compose exec -T service1 npm install 
     - docker-compose exec -T service1 npm test 
