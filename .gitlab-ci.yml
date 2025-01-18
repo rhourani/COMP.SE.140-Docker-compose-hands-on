@@ -31,7 +31,7 @@ test:
   script: 
     - echo $APP_URL 
     - docker-compose up -d
-    - export APP_IP=$(hostname -I | awk '{print $1}') 
+    - export APP_IP=$(ifconfig eth0 | grep 'inet ' | awk '{print $2}')
     - export APP_URL="http://$APP_IP:$APP_PORT"
     - docker-compose exec -T service1 npm install 
     - docker-compose exec -T service1 npm test 
