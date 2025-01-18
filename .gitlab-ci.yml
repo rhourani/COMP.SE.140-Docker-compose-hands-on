@@ -1,5 +1,5 @@
 stages: 
-  - build 
+  # - build 
   - test 
   - deploy 
  
@@ -16,14 +16,14 @@ before_script:
   - docker info 
   - docker-compose --version
  
-build: 
-  stage: build 
-  tags:  
-    - docker  
-    - linux  
-    - nodejs 
-  script: 
-    - docker-compose build --no-cache 
+# build: 
+#   stage: build 
+#   tags:  
+#     - docker  
+#     - linux  
+#     - nodejs 
+#   script: 
+#     - docker-compose build --no-cache 
  
 test: 
   stage: test 
