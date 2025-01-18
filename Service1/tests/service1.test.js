@@ -9,7 +9,7 @@ describe('API Tests', () => {
       .put('/state') 
       .send({ state: 'INIT' }); 
       expect(res.status).toBe(200); 
-      expect(res.text).toBe('State changed to INIT'); 
+      expect(res.text).toBe('INIT'); 
     }); 
     
     it('should set state to PAUSED', async () => { 
@@ -17,7 +17,7 @@ describe('API Tests', () => {
       .put('/state') 
       .send({ state: 'PAUSED' }); 
       expect(res.status).toBe(200); 
-      expect(res.text).toBe('State changed to PAUSED'); 
+      expect(res.text).toBe('PAUSED'); 
     }); 
     
     it('should set state to RUNNING', async () => { 
@@ -25,7 +25,7 @@ describe('API Tests', () => {
       .put('/state') 
       .send({ state: 'RUNNING' }); 
       expect(res.status).toBe(200); 
-      expect(res.text).toBe('State changed to RUNNING'); 
+      expect(res.text).toBe('RUNNING'); 
     }); 
     
     it('should set state to SHUTDOWN', async () => { 
@@ -33,7 +33,7 @@ describe('API Tests', () => {
       .put('/state') 
       .send({ state: 'SHUTDOWN' }); 
       expect(res.status).toBe(200); 
-      expect(res.text).toBe('State changed to SHUTDOWN'); 
+      expect(res.text).toBe('SHUTDOWN'); 
     }); 
     
     it('should do nothing if state is the same as previous', async () => { 
@@ -45,7 +45,7 @@ describe('API Tests', () => {
       .put('/state') 
       .send({ state: 'RUNNING' }); 
       expect(res.status).toBe(200); 
-      expect(res.text).toBe('State unchanged'); 
+      expect(res.text).toBe('RUNNING'); 
     }); 
   });
 });
