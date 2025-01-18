@@ -1,5 +1,5 @@
 const request = require('supertest'); 
-const app ='http://service1_cluster:8197';
+const app ='http://service1:8197';
 
 
 describe('API Tests', () => {
