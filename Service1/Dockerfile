@@ -12,3 +12,7 @@ RUN npm install
 #EXPOSE 8199
 
 CMD ["npm", "start"]
+
+#ps aux | grep docker
+
+#sudo kill -9 <pid>

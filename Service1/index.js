@@ -4,7 +4,7 @@ const Docker = require('dockerode');
 const axios = require('axios');
 
 const app = express();
-
+app.use(express.text());
 const port = process.env.PORT || 8199;
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
@@ -49,8 +49,7 @@ app.post('/stop', (req, res) => {
 let currentState = "INIT";
 
 app.put('/state', (req, res) => {
-
-    currentState = req;
+    currentState = req.body;
     res.send(currentState); 
 });
 
