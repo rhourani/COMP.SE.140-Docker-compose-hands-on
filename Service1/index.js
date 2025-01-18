@@ -48,7 +48,11 @@ app.post('/stop', (req, res) => {
 
 let currentState = "INIT";
 
-app.put('/state', (req, res) => { res.send(currentState); });
+app.put('/state', (req, res) => {
+
+    currentState = req;
+    res.send(currentState); 
+});
 
 async function getServiceInfo(){
 
