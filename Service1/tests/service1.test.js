@@ -6,8 +6,8 @@ describe('API Tests', () => {
   describe('PUT /state', () => { 
     it('should set state to INIT', async () => { 
       const res = await request(app) 
-      .put('/state') 
-      .send({ state: 'INIT' }); 
+      .set('Content-Type', 'text/plain') 
+      .send('INIT'); 
       expect(res.status).toBe(200); 
       expect(res.text).toBe('INIT'); 
     }); 
