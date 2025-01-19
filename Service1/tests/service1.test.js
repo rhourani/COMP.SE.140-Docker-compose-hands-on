@@ -54,4 +54,13 @@ describe('API Tests', () => {
       expect(res.text).toBe('RUNNING'); 
     }); 
   });
+
+
+  describe('GET /state', () => { 
+    it('should return the current status', async () => { 
+      await request(app) 
+      .get('/state')
+      .set('Content-Type', 'text/plain'); 
+    }); 
+  });
 });
