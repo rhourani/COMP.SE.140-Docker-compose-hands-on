@@ -2,6 +2,7 @@ const express = require('express');
 const { exec } = require('child_process');
 const Docker = require('dockerode');
 const axios = require('axios');
+const auth = require('basic-auth')
 
 const app = express();
 app.use(express.text());
@@ -17,14 +18,14 @@ app.get('/request', async (_req, res) => {
         const service2Info = await axios.get('http://service2:8199');
 
         res.json({
-            
+
             service1: service1Info,
             service2: service2Info.data
         });
         await sleep(2000);
-        setTimeout(() => console.log(service1Info .containerName + ' ready to take another request'), 2000);
-        
-    } catch(error){
+        setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
+
+    } catch (error) {
         console.log("here is some error");
         console.log(error);
 
@@ -35,32 +36,108 @@ app.get('/request', async (_req, res) => {
 app.post('/stop', (req, res) => {
     res.send('Shutting down...');
     exec('docker-compose down', (error, stdout, stderr) => {
-        if(error){
-       	   console.error('Error shutting down: ${error}');
-       	   return res.status(500).send('Error sutting down');
+        if (error) {
+            console.error('Error shutting down: ${error}');
+            return res.status(500).send('Error sutting down');
         }
         console.log(stdout);
         res.status(200).send(200).send('Shutting down...');
-    	process.exit();
+        process.exit();
     });
 
 });
 
-let currentState = "INIT";
+
+//api gateway methods
+let currentState = 'INIT';
+const validStates = ['INIT', 'PAUSED', 'RUNNING', 'SHUTDOWN'];
+const stateHistory = [];
+
+
+const checkSystemStatus = (req, res) => {
+    if (currentState === "INIT" || currentState === "PAUSED") {
+        res.set('Content-Type', 'text/plain');
+        res.status(501).send(`State of the API Gateway is ${currentState}. Please log in and change it to RUNNING status in order to access it.`);
+        return false;
+    }
+    return true;
+}
+
+const authenticate = (req) => {
+    const credentials = auth(req);
+    if (!credentials || credentials.name !== 'ridvan' || credentials.pass !== 'ridvan') {
+        return false;
+    }
+    return true;
+};
 
 app.put('/state', (req, res) => {
-    currentState = req.body;
-    res.send(currentState); 
+    //check if incmoing string is valid
+    const newState = req.body;
+    if (!validStates.includes(newState)) {
+        res.set('Content-Type', 'text/plain');
+        res.status(400).send('Invalid state ' + newState);
+        return res;
+    }
+
+    // check current system's status
+    if (!checkSystemStatus(req, res)) {
+        return;
+    }
+
+    if (currentState === "INIT") {
+        if (!authenticate(req)) {
+            res.set('Content-Type', 'text/plain');
+            return res.status(401).send('Unauthorized');
+        }
+    }
+
+    currentState = newState;
+    const timestamp = new Date().toISOString();
+    stateHistory.push(`${timestamp}: ${currentState}->${newState}`);
+
+    if (newState === "INIT") {
+        //Reset state of the system >> already state resetted
+        //Log out the user by cleaning the credentials
+        res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');
+        res.status(401).send('Logged out');
+        return res;
+    }
+
+    if (newState === "SHUTDOWN") {
+        exec('docker-compose down', (error, stdout, stderr) => {
+            if (error) {
+                console.error('Error shutting down: ${error}');
+                res.set('Content-Type', 'text/plain');
+                res.status(500).send('Error shutting down');
+                return res;
+            }
+            console.log(stdout);
+            res.set('Content-Type', 'text/plain');
+            res.status(200).send('Shutting down performed');
+            return res;
+        });
+    }
 });
 
-async function getServiceInfo(){
+const handleRunLog = (req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end(stateHistory.toString());
+};
+
+
+
+
+//helper methods
+
+async function getServiceInfo() {
 
     const containers = await docker.listContainers({
-         filters: {
-             label: ['service=sexposed_to_outside_service1.v1']
-             }
-            });
-    const containerId = containers.find(c => c.State === 'running').Id; 
+        filters: {
+            label: ['service=sexposed_to_outside_service1.v1']
+        }
+    });
+    const containerId = containers.find(c => c.State === 'running').Id;
     const container = docker.getContainer(containerId);
     const info = await container.inspect();
     const containerName = info.Name;
@@ -79,10 +156,10 @@ async function getServiceInfo(){
     };
 }
 
-function execCommand(command){
+function execCommand(command) {
     return new Promise((resolve, reject) => {
         exec(command, (error, stdout) => {
-            if(error) {
+            if (error) {
                 reject(error);
             } else {
                 resolve(stdout);
