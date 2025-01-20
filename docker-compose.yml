@@ -25,8 +25,8 @@ services:
       - ridvanContainer
     environment:
       - HOSTNAME=service1
-    deploy:
-      replicas: 3  
+    # deploy:
+    #   replicas: 3  
     labels: 
       - "service=sexposed_to_outside_service1.v1"
     
