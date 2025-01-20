@@ -104,7 +104,7 @@ app.put('/state', (req, res) => {
         return res;
     }
 
-    if (newState === "SHUTDOWN") {
+    if (newState === "SHUTDOWNn") {
         exec('docker-compose down', (error, stdout, stderr) => {
             if (error) {
                 console.error('Error shutting down: ${error}');
