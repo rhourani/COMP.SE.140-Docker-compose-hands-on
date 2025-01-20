@@ -26,9 +26,6 @@ app.get('/request', async (_req, res) => {
         setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
 
     } catch (error) {
-        console.log("here is some error");
-        console.log(error);
-
         res.status(500).json({ error: error.message });
     }
 });
@@ -37,10 +34,8 @@ app.post('/stop', (req, res) => {
     res.send('Shutting down...');
     exec('docker-compose down', (error, stdout, stderr) => {
         if (error) {
-            console.error('Error shutting down: ${error}');
             return res.status(500).send('Error sutting down');
         }
-        console.log(stdout);
         res.status(200).send(200).send('Shutting down...');
         process.exit();
     });
@@ -54,16 +49,7 @@ const validStates = ['INIT', 'PAUSED', 'RUNNING', 'SHUTDOWN'];
 const stateHistory = [];
 
 
-const checkSystemStatus = (req, res) => {
-    if (currentState === "INIT" || currentState === "PAUSED") {
-        res.set('Content-Type', 'text/plain');
-        res.status(501).send(`State of the API Gateway is ${currentState}. Please log in and change it to RUNNING status in order to access it.`);
-        return false;
-    }
-    return true;
-}
-
-const authenticate = (req) => {
+const isAuthenticated = (req) => {
     const credentials = auth(req);
     if (!credentials || credentials.name !== 'ridvan' || credentials.pass !== 'ridvan') {
         return false;
@@ -72,52 +58,71 @@ const authenticate = (req) => {
 };
 
 app.put('/state', (req, res) => {
-    //check if incmoing string is valid
-    const newState = req.body;
+
+    console.log("Entered state");
+    console.log(currentState);
+
+
+    //check if incmoing string is valid for system's states
+    let newState = req.body;
     if (!validStates.includes(newState)) {
         res.set('Content-Type', 'text/plain');
         res.status(400).send('Invalid state ' + newState);
         return res;
     }
 
-    // check current system's status
-    if (!checkSystemStatus(req, res)) {
-        return;
+    //Case where system in in INIT and use is logged in, then system will goes to 
+    // RUNNING state
+    if(currentState === "INIT" && isAuthenticated(req)){
+
+        //Set next state and log transition history
+        newState = 'RUNNING';
+        currentState = newState;
+        logTransition(newState);
+
+        res.set('Content-Type', 'text/plain');
+        return res.status(200).send('RUNNING');
+    }
+    else if (currentState === "INIT" && !isAuthenticated(req)) {
+        res.set('Content-Type', 'text/plain');
+        return res.status(501).send('Unauthorized');
     }
 
-    if (currentState === "INIT") {
-        if (!authenticate(req)) {
+    //Handle situation where system state is RUNNING or PAUSED
+    else if((currentState === "RUNNING" || currentState === "PAUSED")){
+        if (newState === "INIT") {
+            //Set next state and log transition history
+            currentState = newState;
+            logTransition(newState);
+    
+            //Reset state of the system >> already state resetted
+            //Log out the user by cleaning the credentials
+            res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');
+            return res.status(200).send('Logged out');
+            
+        }
+
+        else if (newState === "SHUTDOWN") {
+            logTransition(newState);
+            exec('docker-compose down', (error, stdout, stderr) => {
+                if (error) {
+                    return res.set('Content-Type', 'text/plain')
+                    .status(500).send(error);
+                }
+                res.set('Content-Type', 'text/plain');
+                return res.status(200).send('Shutting down performed');
+            });
+        }
+        //Case where system can go between paused and running but states are not same
+        else if(newState !== currentState){
+            currentState = newState;
+            logTransition(newState);
             res.set('Content-Type', 'text/plain');
-            return res.status(401).send('Unauthorized');
+            return res.status(200).send(newState);
         }
     }
-
-    currentState = newState;
-    const timestamp = new Date().toISOString();
-    stateHistory.push(`${timestamp}: ${currentState}->${newState}`);
-
-    if (newState === "INIT") {
-        //Reset state of the system >> already state resetted
-        //Log out the user by cleaning the credentials
-        res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');
-        res.status(401).send('Logged out');
-        return res;
-    }
-
-    if (newState === "SHUTDOWNn") {
-        exec('docker-compose down', (error, stdout, stderr) => {
-            if (error) {
-                console.error('Error shutting down: ${error}');
-                res.set('Content-Type', 'text/plain');
-                res.status(500).send('Error shutting down');
-                return res;
-            }
-            console.log(stdout);
-            res.set('Content-Type', 'text/plain');
-            res.status(200).send('Shutting down performed');
-            return res;
-        });
-    }
+    res.set('Content-Type', 'text/plain');
+    return res.status(200).send("No change done");
 });
 
 const handleRunLog = (req, res) => {
@@ -128,7 +133,14 @@ const handleRunLog = (req, res) => {
 
 
 
+
+
 //helper methods
+
+function logTransition(newState) {
+    const timestamp = new Date().toISOString();
+    stateHistory.push(`${timestamp}: ${currentState}->${newState}`);
+}
 
 async function getServiceInfo() {
 
