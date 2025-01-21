@@ -126,7 +126,7 @@ app.get('/state', (req, res) => {
     return res.status(200).send(currentState);
 });
 
-app.get('/request', async (req, res) => {
+app.get('/requestAsText', async (req, res) => {
     try {
         const service1Info = await getServiceInfo();
         const service2Info = await axios.get('http://service2:8199');
@@ -141,7 +141,7 @@ app.get('/request', async (req, res) => {
         setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
 
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).text({ error: error.message });
     }
 });
 
