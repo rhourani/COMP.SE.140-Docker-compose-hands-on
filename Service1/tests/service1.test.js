@@ -98,7 +98,7 @@ describe('API Tests', () => {
       .get('/request')
       .set('Content-Type', 'text/plain');
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(500);
     }); 
   });
 

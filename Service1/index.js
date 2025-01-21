@@ -12,23 +12,24 @@ const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// app.get('/request', async (_req, res) => {
-//     try {
-//         const service1Info = await getServiceInfo();
-//         const service2Info = await axios.get('http://service2:8199');
+app.get('/request', async (_req, res) => {
+    console.log("Entered request endpoint from service1 nginx proxy");
+    try {
+        const service1Info = await getServiceInfo();
+        const service2Info = await axios.get('http://service2:8199');
 
-//         res.json({
+        res.json({
 
-//             service1: service1Info,
-//             service2: service2Info.data
-//         });
-//         await sleep(2000);
-//         setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
+            service1: service1Info,
+            service2: service2Info.data
+        });
+        await sleep(2000);
+        setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
 
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 app.post('/stop', (req, res) => {
     res.send('Shutting down...');
@@ -127,6 +128,7 @@ app.get('/state', (req, res) => {
 });
 
 app.get('/requestAsText', async (req, res) => {
+    console.log("Entered request endpoint from api gateway");
     try {
         const service1Info = await getServiceInfo();
         const service2Info = await axios.get('http://service2:8199');
