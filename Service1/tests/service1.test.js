@@ -1,6 +1,6 @@
 const request = require('supertest'); 
-const app ='service1:8199';
-//const app ='localhost:8197';
+//const app ='service1:8199';
+const app ='localhost:8197';
 
 
 const authHeader = 'Basic ' + Buffer.from('ridvan:ridvan').toString('base64');
@@ -99,6 +99,30 @@ describe('API Tests', () => {
       .set('Content-Type', 'text/plain');
 
       expect(res.status).toBe(200);
+    }); 
+  });
+
+  describe('GET /run-log', () => { 
+    it('should return the system states', async () => { 
+
+      await request(app) 
+      .put('/state')
+      .set('Authorization', authHeader)
+      .set('Content-Type', 'text/plain') 
+      .send('INIT'); 
+
+      await request(app) 
+      .put('/state')
+      .set('Authorization', authHeader)
+      .set('Content-Type', 'text/plain') 
+      .send('PAUSED'); 
+
+      const res = await request(app) 
+      .get('/run-log')
+      .set('Content-Type', 'text/plain');
+
+      expect(res.status).toBe(200);
+      expect(res.text).not.toBe('');
     }); 
   });
 
