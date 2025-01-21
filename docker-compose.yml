@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   nginx:
-    build: .
+    build: ./nginx
     image: nginx-image
     ports:
       - "8198:8198"
