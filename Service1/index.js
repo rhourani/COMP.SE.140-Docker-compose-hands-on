@@ -125,6 +125,11 @@ app.put('/state', (req, res) => {
     return res.status(200).send("No change done");
 });
 
+app.get('/state', (req, res) => {
+    res.set('Content-Type', 'text/plain');
+    return res.status(200).send(currentState);
+});
+
 const handleRunLog = (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end(stateHistory.toString());
