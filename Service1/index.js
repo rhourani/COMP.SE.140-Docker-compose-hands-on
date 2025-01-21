@@ -147,7 +147,7 @@ app.get('/request', async (req, res) => {
 
 
 app.get('/run-log', (req, res) => {
-    res.set('Content-Type', 'text/plain');
+    res.set('Content-Type', 'text/plain'); 
     return res.status(200).send(stateHistory.toString());
 });
 
