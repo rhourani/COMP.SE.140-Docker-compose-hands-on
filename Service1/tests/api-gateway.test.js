@@ -58,7 +58,6 @@ describe('API Tests', () => {
     // });
   });
 
-
   describe('GET /state', () => {
     it('should return the current status', async () => {
 
