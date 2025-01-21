@@ -1,10 +1,11 @@
-import express, { text } from 'express';
-import { exec } from 'child_process';
-import Docker from 'dockerode';
-import auth from 'basic-auth';
+const express = require('express');
+const { exec } = require('child_process');
+const Docker = require('dockerode');
+const axios = require('axios');
+const auth = require('basic-auth')
 
 const app = express();
-app.use(text());
+app.use(express.text());
 const port = process.env.PORT || 8199;
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
@@ -15,7 +16,7 @@ app.get('/request', async (_req, res) => {
     console.log("Entered request endpoint from service1 nginx proxy");
     try {
         const service1Info = await getServiceInfo();
-        const service2Info = await get('http://service2:8199');
+        const service2Info = await axios.get('http://service2:8199');
 
         res.json({
 
@@ -151,7 +152,7 @@ app.get('/requestAsText', async (req, res) => {
     console.log("Entered request endpoint from api gateway");
     try {
         const service1Info = await getServiceInfo();
-        const service2Info = await get('http://service2:8199');
+        const service2Info = await axios.get('http://service2:8199');
         res.set('Content-Type', 'text/plain');
 
         res.send({

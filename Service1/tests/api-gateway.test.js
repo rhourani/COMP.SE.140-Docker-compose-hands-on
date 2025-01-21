@@ -1,9 +1,9 @@
-import request from 'supertest';
-import { hostname as _hostname } from 'os'; 
+const request = require('supertest');
+const os = require('os'); 
 
 //const app = process.env.NODE_ENV === 'ci' ? 'service1:8199' : 'localhost:8197';
 
-const hostname = _hostname(); 
+const hostname = os.hostname(); 
 console.log(hostname);
 const app = hostname.includes('ci') ? 'service1:8199' : 'localhost:8197'; 
 
