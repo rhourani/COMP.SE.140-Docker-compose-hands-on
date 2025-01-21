@@ -86,8 +86,20 @@ describe('API Tests', () => {
       .set('Content-Type', 'text/plain');
 
       expect(res.status).toBe(200);
-      expect(res.text).toBe('INIT')
+      expect(res.text).toBe('INIT');
 
     }); 
   });
+
+  describe('GET /request', () => { 
+    it('should return the containers details', async () => { 
+
+      const res = await request(app) 
+      .get('/request')
+      .set('Content-Type', 'text/plain');
+
+      expect(res.status).toBe(200);
+    }); 
+  });
+
 });
