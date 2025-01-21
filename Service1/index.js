@@ -59,10 +59,6 @@ const isAuthenticated = (req) => {
 
 app.put('/state', (req, res) => {
 
-    console.log("Entered state");
-    console.log(currentState);
-
-
     //check if incmoing string is valid for system's states
     let newState = req.body;
     if (!validStates.includes(newState)) {
@@ -128,6 +124,25 @@ app.put('/state', (req, res) => {
 app.get('/state', (req, res) => {
     res.set('Content-Type', 'text/plain');
     return res.status(200).send(currentState);
+});
+
+app.get('/request', async (req, res) => {
+    try {
+        const service1Info = await getServiceInfo();
+        const service2Info = await axios.get('http://service2:8199');
+        res.set('Content-Type', 'text/plain');
+        
+        res.send({
+
+            service1: service1Info,
+            service2: service2Info.data
+        });
+        await sleep(2000);
+        setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 const handleRunLog = (req, res) => {
