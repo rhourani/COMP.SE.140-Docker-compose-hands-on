@@ -73,8 +73,8 @@ app.put('/state', (req, res) => {
 
         //Set next state and log transition history
         newState = 'RUNNING';
-        currentState = newState;
         logTransition(newState);
+        currentState = newState;
 
         res.set('Content-Type', 'text/plain');
         return res.status(200).send('RUNNING');
@@ -88,8 +88,8 @@ app.put('/state', (req, res) => {
     else if((currentState === "RUNNING" || currentState === "PAUSED")){
         if (newState === "INIT") {
             //Set next state and log transition history
-            currentState = newState;
             logTransition(newState);
+            currentState = newState;
     
             //Reset state of the system >> already state resetted
             //Log out the user by cleaning the credentials
@@ -111,8 +111,8 @@ app.put('/state', (req, res) => {
         }
         //Case where system can go between paused and running but states are not same
         else if(newState !== currentState){
-            currentState = newState;
             logTransition(newState);
+            currentState = newState;
             res.set('Content-Type', 'text/plain');
             return res.status(200).send(newState);
         }
@@ -145,18 +145,13 @@ app.get('/request', async (req, res) => {
     }
 });
 
-const handleRunLog = (req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end(stateHistory.toString());
-};
 
-
-
-
-
+app.get('/run-log', (req, res) => {
+    res.set('Content-Type', 'text/plain');
+    return res.status(200).send(stateHistory.toString());
+});
 
 //helper methods
-
 function logTransition(newState) {
     const timestamp = new Date().toISOString();
     stateHistory.push(`${timestamp}: ${currentState}->${newState}`);

@@ -1,6 +1,6 @@
 const request = require('supertest'); 
-//const app ='service1:8199';
-const app ='localhost:8197';
+const app ='service1:8199';
+//const app ='localhost:8197';
 
 
 const authHeader = 'Basic ' + Buffer.from('ridvan:ridvan').toString('base64');
