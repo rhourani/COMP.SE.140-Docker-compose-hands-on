@@ -26,7 +26,7 @@ services:
     environment:
       - HOSTNAME=service1
     deploy:
-      replicas: 3  
+      replicas: 1  
     labels: 
       - "service=sexposed_to_outside_service1.v1"
     
