@@ -1,6 +1,7 @@
 stages: 
   - build 
   - test 
+  - analysis
   - deploy 
  
 image: docker/compose:latest
@@ -37,6 +38,13 @@ test:
   
   after_script: 
     - docker-compose down
+
+analysis: 
+  stage: analysis 
+  script: 
+    - cd Service1 
+    - npm install 
+    - npx eslint . # Run ESLint for Service1
 
 deploy: 
   stage: deploy 
