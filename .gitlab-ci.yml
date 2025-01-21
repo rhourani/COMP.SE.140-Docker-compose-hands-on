@@ -1,5 +1,5 @@
 stages: 
-  # - build 
+  - build 
   - test 
   - deploy 
  
@@ -11,20 +11,21 @@ services:
 variables: 
   DOCKER_DRIVER: overlay2 
   DOCKER_TLS_CERTDIR: ""
+  NODE_ENV: ci
  
 before_script: 
   - docker info 
   - docker-compose --version
 
  
-# build: 
-#   stage: build 
-#   tags:  
-#     - docker  
-#     - linux  
-#     - nodejs 
-#   script: 
-#     - docker-compose build --no-cache 
+build: 
+  stage: build 
+  tags:  
+    - docker  
+    - linux  
+    - nodejs 
+  script: 
+    - docker-compose build --no-cache 
 
 test: 
   stage: test 

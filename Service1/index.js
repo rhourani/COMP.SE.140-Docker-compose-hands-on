@@ -75,9 +75,24 @@ app.put('/state', (req, res) => {
         return res;
     }
 
-    //Case where system in in INIT and use is logged in, then system will goes to 
+    //This will help in making sure the system can be rested with simple step with authenticated user
+    
+    //Current state is INIT and next state is INIT and user is logged in
+    //Make the system return to 0 stage
+    if (currentState === "INIT" && newState === "INIT" && isAuthenticated(req)) {
+        //Set next state and log transition history
+        logTransition(newState);// logTransition method logs the history of the system states and its reusable
+        currentState = newState;
+
+        //Reset state of the system >> already state resetted
+        //Log out the user by cleaning the credentials
+        res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');//This header will log out the user 
+        return res.status(201).send('Logged out');
+    }
+
+    //Case where system in in INIT and user is logged in, then system will goes to 
     // RUNNING state
-    if(currentState === "INIT" && isAuthenticated(req)){
+    else if (currentState === "INIT" && isAuthenticated(req)) {
 
         //Set next state and log transition history
         newState = 'RUNNING';
@@ -87,37 +102,37 @@ app.put('/state', (req, res) => {
         res.set('Content-Type', 'text/plain');
         return res.status(201).send('RUNNING');// 201 is the reponse code for PUT in REST API
     }
-    else if (currentState === "INIT" && !isAuthenticated(req)) {
+    else if (newState === "INIT" && !isAuthenticated(req)) {
         res.set('Content-Type', 'text/plain');
         return res.status(501).send('Unauthorized');//501 is unauthorized web code
     }
 
     //Handle situation where system state is RUNNING or PAUSED
-    else if((currentState === "RUNNING" || currentState === "PAUSED")){
+    else if ((currentState === "RUNNING" || currentState === "PAUSED")) {
         if (newState === "INIT") {
             //Set next state and log transition history
             logTransition(newState);// logTransition method logs the history of the system states and its reusable
             currentState = newState;
-    
+
             //Reset state of the system >> already state resetted
             //Log out the user by cleaning the credentials
             res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');//This header will log out the user 
             return res.status(201).send('Logged out');
-            
+
         }
         else if (newState === "SHUTDOWN") {
             logTransition(newState);
             exec('docker-compose down', (error, stdout, stderr) => {// This command will shut down the containers
                 if (error) {
                     return res.set('Content-Type', 'text/plain')
-                    .status(500).send(error);
+                        .status(500).send(error);
                 }
                 res.set('Content-Type', 'text/plain');
                 return res.status(201).send('Shutting down performed');
             });
         }
         //Case where system can go between paused and running but states are not same
-        else if(newState !== currentState){
+        else if (newState !== currentState) {
             logTransition(newState);
             currentState = newState;
             res.set('Content-Type', 'text/plain');
@@ -125,7 +140,7 @@ app.put('/state', (req, res) => {
         }
     }
     res.set('Content-Type', 'text/plain');
-    return res.status(200).send("No change done");
+    return res.status(200).send(currentState);
 });
 
 app.get('/state', (req, res) => {
@@ -139,7 +154,7 @@ app.get('/requestAsText', async (req, res) => {
         const service1Info = await getServiceInfo();
         const service2Info = await axios.get('http://service2:8199');
         res.set('Content-Type', 'text/plain');
-        
+
         res.send({
 
             service1: service1Info,
@@ -155,7 +170,7 @@ app.get('/requestAsText', async (req, res) => {
 
 
 app.get('/run-log', (req, res) => {
-    res.set('Content-Type', 'text/plain'); 
+    res.set('Content-Type', 'text/plain');
     return res.status(200).send(stateHistory.join('\n'));
 });
 
