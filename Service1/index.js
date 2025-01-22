@@ -69,7 +69,6 @@ app.put('/state', (req, res) => {
    
     //check if incmoing string is valid for system's states
     let newState = req.body;
-    console.log(currentState, newState);
     if (!validStates.includes(newState)) {
         res.set('Content-Type', 'text/plain');//Specify the header to be text/plain
         res.status(400).send('Invalid state ' + newState);
@@ -134,14 +133,8 @@ app.put('/state', (req, res) => {
         }
         //Case where system can go between paused and running but states are not same
         else if (newState !== currentState) {
-            console.log("Entered the runnung paused state");
-            console.log("newState ",newState);
-            console.log(currentState);
-
-
             logTransition(newState);
             currentState = newState;
-            console.log("step before return");
             res.set('Content-Type', 'text/plain');
             return res.status(200).send(newState);
         }
@@ -183,13 +176,9 @@ app.get('/run-log', (req, res) => {
 
 //helper methods
 function logTransition(newState, currentState) {
-    console.log("entered log transition");
     const timestamp = new Date().toISOString();
     var logEntry = `${timestamp}: ${currentState}->${newState}`;
-    console.log(logEntry);
-
     stateHistory.push(logEntry);
-    console.log("out from log trans");
 }
 
 async function getServiceInfo() {
