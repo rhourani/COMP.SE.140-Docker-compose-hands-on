@@ -44,7 +44,7 @@ analysis:
   script: 
     - docker-compose up -d
     - cd Service1 
-    - npm install 
+    #- npm install 
     - npx eslint . # Run ESLint for Service1
 
 deploy: 
