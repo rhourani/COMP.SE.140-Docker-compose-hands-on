@@ -27,7 +27,7 @@ services:
       - HOSTNAME=service1
       - NODE_ENV=local
     deploy:
-      replicas: 3  #creates 3 replicas
+      replicas: 1  #normally creates 3 replicas but with state maangment, I used Redis but it took me a lot of time and I gave up on it
     labels: 
       - "service=sexposed_to_outside_service1.v1"
     

@@ -18,7 +18,7 @@ describe('API Tests', () => {
 
       const res = await changeState('RUNNING');
 
-      expect(res.status).toBe(201); // returns 201 , REST API response for PUT
+      expect(res.status).toBe(200);
       expect(res.text).toBe('RUNNING');
     });
 
@@ -27,7 +27,7 @@ describe('API Tests', () => {
 
       const res = await changeState('RUNNING');
 
-      expect(res.status).toBe(201);
+      expect(res.status).toBe(200);
       expect(res.text).toBe('RUNNING');
     });
 
@@ -37,7 +37,7 @@ describe('API Tests', () => {
 
       const res = await changeState('PAUSED');
 
-      expect(res.status).toBe(201);
+      expect(res.status).toBe(200);
       expect(res.text).toBe('PAUSED');
     });
 

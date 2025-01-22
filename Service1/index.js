@@ -66,9 +66,10 @@ const isAuthenticated = (req) => {
 // If it is same state, nothing happens
 // If the system returns to INIT, user will be logged out, state transition history will not be cleared
 app.put('/state', (req, res) => {
-
+   
     //check if incmoing string is valid for system's states
     let newState = req.body;
+    console.log(currentState, newState);
     if (!validStates.includes(newState)) {
         res.set('Content-Type', 'text/plain');//Specify the header to be text/plain
         res.status(400).send('Invalid state ' + newState);
@@ -81,13 +82,13 @@ app.put('/state', (req, res) => {
     //Make the system return to 0 stage
     if (currentState === "INIT" && newState === "INIT" && isAuthenticated(req)) {
         //Set next state and log transition history
-        logTransition(newState);// logTransition method logs the history of the system states and its reusable
+        logTransition(newState, currentState);// logTransition method logs the history of the system states and its reusable
         currentState = newState;
 
         //Reset state of the system >> already state resetted
         //Log out the user by cleaning the credentials
         res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');//This header will log out the user 
-        return res.status(201).send('Logged out');
+        return res.status(200).send('Logged out');
     }
 
     //Case where system in in INIT and user is logged in, then system will goes to 
@@ -96,11 +97,11 @@ app.put('/state', (req, res) => {
 
         //Set next state and log transition history
         newState = 'RUNNING';
-        logTransition(newState);
+        logTransition(newState, currentState);
         currentState = newState;
 
         res.set('Content-Type', 'text/plain');
-        return res.status(201).send('RUNNING');// 201 is the reponse code for PUT in REST API
+        return res.status(200).send('RUNNING');
     }
     else if (newState === "INIT" && !isAuthenticated(req)) {
         res.set('Content-Type', 'text/plain');
@@ -111,13 +112,13 @@ app.put('/state', (req, res) => {
     else if ((currentState === "RUNNING" || currentState === "PAUSED")) {
         if (newState === "INIT") {
             //Set next state and log transition history
-            logTransition(newState);// logTransition method logs the history of the system states and its reusable
+            logTransition(newState, currentState);// logTransition method logs the history of the system states and its reusable
             currentState = newState;
 
             //Reset state of the system >> already state resetted
             //Log out the user by cleaning the credentials
             res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');//This header will log out the user 
-            return res.status(201).send('Logged out');
+            return res.status(200).send('Logged out');
 
         }
         else if (newState === "SHUTDOWN") {
@@ -128,15 +129,21 @@ app.put('/state', (req, res) => {
                         .status(500).send(error);
                 }
                 res.set('Content-Type', 'text/plain');
-                return res.status(201).send('Shutting down performed');
+                return res.status(200).send('Shutting down performed');
             });
         }
         //Case where system can go between paused and running but states are not same
         else if (newState !== currentState) {
+            console.log("Entered the runnung paused state");
+            console.log("newState ",newState);
+            console.log(currentState);
+
+
             logTransition(newState);
             currentState = newState;
+            console.log("step before return");
             res.set('Content-Type', 'text/plain');
-            return res.status(201).send(newState);
+            return res.status(200).send(newState);
         }
     }
     res.set('Content-Type', 'text/plain');
@@ -164,7 +171,7 @@ app.get('/requestAsText', async (req, res) => {
         setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
 
     } catch (error) {
-        res.status(500).text({ error: error.message });
+        res.status(500).send({ error: error.message });
     }
 });
 
@@ -175,9 +182,14 @@ app.get('/run-log', (req, res) => {
 });
 
 //helper methods
-function logTransition(newState) {
+function logTransition(newState, currentState) {
+    console.log("entered log transition");
     const timestamp = new Date().toISOString();
-    stateHistory.push(`${timestamp}: ${currentState}->${newState}`);
+    var logEntry = `${timestamp}: ${currentState}->${newState}`;
+    console.log(logEntry);
+
+    stateHistory.push(logEntry);
+    console.log("out from log trans");
 }
 
 async function getServiceInfo() {
