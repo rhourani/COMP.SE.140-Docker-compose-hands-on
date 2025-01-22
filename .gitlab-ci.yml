@@ -1,5 +1,5 @@
 stages: 
-  - build 
+  #- build 
   #- test 
   - analysis
   - deploy 
@@ -16,18 +16,17 @@ variables:
  
 before_script: 
   - export NODE_ENV=ci
-  - docker info 
   - docker-compose --version
 
  
-build: 
-  stage: build 
-  tags:  
-    - docker  
-    - linux  
-    - nodejs 
-  script: 
-    - docker-compose build --no-cache 
+# build: 
+#   stage: build 
+#   tags:  
+#     - docker  
+#     - linux  
+#     - nodejs 
+#   script: 
+#     - docker-compose build --no-cache 
 
 # test: 
 #   stage: test 
@@ -41,10 +40,10 @@ build:
 
 analysis: 
   stage: analysis 
+  image: node:14 # Use Node.js image for analysis stage
   script: 
-    - docker-compose up -d
     - cd Service1 
-    #- npm install 
+    - npm install 
     - npx eslint . # Run ESLint for Service1
 
 deploy: 
