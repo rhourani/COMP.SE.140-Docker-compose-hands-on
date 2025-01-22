@@ -13,6 +13,7 @@ const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 app.get('/request', async (_req, res) => {
+    console.log("Entered request endpoint from service1 nginx proxy");
     try {
         const service1Info = await getServiceInfo();
         const service2Info = await axios.get('http://service2:8199');
@@ -26,9 +27,6 @@ app.get('/request', async (_req, res) => {
         setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
 
     } catch (error) {
-        console.log("here is some error");
-        console.log(error);
-
         res.status(500).json({ error: error.message });
     }
 });
@@ -37,10 +35,8 @@ app.post('/stop', (req, res) => {
     res.send('Shutting down...');
     exec('docker-compose down', (error, stdout, stderr) => {
         if (error) {
-            console.error('Error shutting down: ${error}');
             return res.status(500).send('Error sutting down');
         }
-        console.log(stdout);
         res.status(200).send(200).send('Shutting down...');
         process.exit();
     });
@@ -51,19 +47,12 @@ app.post('/stop', (req, res) => {
 //api gateway methods
 let currentState = 'INIT';
 const validStates = ['INIT', 'PAUSED', 'RUNNING', 'SHUTDOWN'];
-const stateHistory = [];
+const stateHistory = []; // A list to hold the states of my system as an in-memory database
 
 
-const checkSystemStatus = (req, res) => {
-    if (currentState === "INIT" || currentState === "PAUSED") {
-        res.set('Content-Type', 'text/plain');
-        res.status(501).send(`State of the API Gateway is ${currentState}. Please log in and change it to RUNNING status in order to access it.`);
-        return false;
-    }
-    return true;
-}
-
-const authenticate = (req) => {
+//Used the basic-auth library to access the nginx authorization
+//and check if the user is authenticated or not
+const isAuthenticated = (req) => {
     const credentials = auth(req);
     if (!credentials || credentials.name !== 'ridvan' || credentials.pass !== 'ridvan') {
         return false;
@@ -71,64 +60,127 @@ const authenticate = (req) => {
     return true;
 };
 
+//Put endpoint to change the state
+// four states as mentioned in the project document, from INIT to RUNNING after logging in.
+// From RUNNING and PAUSED can go to 3 states (INIT, PAUSED/RUNNING and SHUTTING states
+// If it is same state, nothing happens
+// If the system returns to INIT, user will be logged out, state transition history will not be cleared
 app.put('/state', (req, res) => {
-    //check if incmoing string is valid
-    const newState = req.body;
+   
+    //check if incmoing string is valid for system's states
+    let newState = req.body;
     if (!validStates.includes(newState)) {
-        res.set('Content-Type', 'text/plain');
+        res.set('Content-Type', 'text/plain');//Specify the header to be text/plain
         res.status(400).send('Invalid state ' + newState);
         return res;
     }
 
-    // check current system's status
-    if (!checkSystemStatus(req, res)) {
-        return;
-    }
+    //This will help in making sure the system can be rested with simple step with authenticated user
+    
+    //Current state is INIT and next state is INIT and user is logged in
+    //Make the system return to 0 stage
+    if (currentState === "INIT" && newState === "INIT" && isAuthenticated(req)) {
+        //Set next state and log transition history
+        logTransition(newState);// logTransition method logs the history of the system states and its reusable
+        currentState = newState;
 
-    if (currentState === "INIT") {
-        if (!authenticate(req)) {
-            res.set('Content-Type', 'text/plain');
-            return res.status(401).send('Unauthorized');
-        }
-    }
-
-    currentState = newState;
-    const timestamp = new Date().toISOString();
-    stateHistory.push(`${timestamp}: ${currentState}->${newState}`);
-
-    if (newState === "INIT") {
         //Reset state of the system >> already state resetted
         //Log out the user by cleaning the credentials
-        res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');
-        res.status(401).send('Logged out');
-        return res;
+        res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');//This header will log out the user 
+        return res.status(200).send('Logged out');
     }
 
-    if (newState === "SHUTDOWNn") {
-        exec('docker-compose down', (error, stdout, stderr) => {
-            if (error) {
-                console.error('Error shutting down: ${error}');
+    //Case where system in in INIT and user is logged in, then system will goes to 
+    // RUNNING state
+    else if (currentState === "INIT" && isAuthenticated(req)) {
+
+        //Set next state and log transition history
+        newState = 'RUNNING';
+        logTransition(newState);
+        currentState = newState;
+
+        res.set('Content-Type', 'text/plain');
+        return res.status(200).send('RUNNING');
+    }
+    else if (newState === "INIT" && !isAuthenticated(req)) {
+        res.set('Content-Type', 'text/plain');
+        return res.status(501).send('Unauthorized');//501 is unauthorized web code
+    }
+
+    //Handle situation where system state is RUNNING or PAUSED
+    else if ((currentState === "RUNNING" || currentState === "PAUSED")) {
+        if (newState === "INIT") {
+            //Set next state and log transition history
+            logTransition(newState);// logTransition method logs the history of the system states and its reusable
+            currentState = newState;
+
+            //Reset state of the system >> already state resetted
+            //Log out the user by cleaning the credentials
+            res.set('WWW-Authenticate', 'Basic realm="Restricted Area"');//This header will log out the user 
+            return res.status(200).send('Logged out');
+
+        }
+        else if (newState === "SHUTDOWN") {
+            logTransition(newState);
+            currentState = newState;
+            exec('docker-compose down', (error, stdout, stderr) => {// This command will shut down the containers
+                if (error) {
+                    return res.set('Content-Type', 'text/plain')
+                        .status(500).send(error);
+                }
                 res.set('Content-Type', 'text/plain');
-                res.status(500).send('Error shutting down');
-                return res;
-            }
-            console.log(stdout);
+                return res.status(200).send('Shutting down performed');
+            });
+        }
+        //Case where system can go between paused and running but states are not same
+        else if (newState !== currentState) {
+            logTransition(newState);
+            currentState = newState;
             res.set('Content-Type', 'text/plain');
-            res.status(200).send('Shutting down performed');
-            return res;
+            return res.status(200).send(newState);
+        }
+    }
+    res.set('Content-Type', 'text/plain');
+    return res.status(200).send("\n Current system state is: " + currentState + " Please if you see INIT and you are not authorized, try to log in. \n");
+});
+
+app.get('/state', (req, res) => {
+    res.set('Content-Type', 'text/plain');
+    return res.status(200).send(currentState);
+});
+
+app.get('/requestAsText', async (req, res) => {
+    console.log("Entered request endpoint from api gateway");
+    try {
+        const service1Info = await getServiceInfo();
+        const service2Info = await axios.get('http://service2:8199');
+        res.set('Content-Type', 'text/plain');
+
+        res.send({
+
+            service1: service1Info,
+            service2: service2Info.data
         });
+        await sleep(2000);
+        setTimeout(() => console.log(service1Info.containerName + ' ready to take another request'), 2000);
+
+    } catch (error) {
+        res.status(500).send({ error: error.message });
     }
 });
 
-const handleRunLog = (req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end(stateHistory.toString());
-};
 
-
-
+app.get('/run-log', (req, res) => {
+    res.set('Content-Type', 'text/plain');
+    return res.status(200).send(stateHistory.join('\n'));
+});
 
 //helper methods
+function logTransition(newState) {
+    const timestamp = new Date().toISOString();
+    var logEntry = `${timestamp}: ${currentState}->${newState}`;
+    stateHistory.push(logEntry);
+}
 
 async function getServiceInfo() {
 

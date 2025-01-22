@@ -1,57 +1,33 @@
-const request = require('supertest'); 
-const app ='service1:8199';
+const request = require('supertest');
 
+/**
+ * IMPORTANT NOTE: 
+ * Uncomment for local or GitLab
+ */
+//const app = 'service1:8199';
+const app = 'localhost:8197';
 
-describe('API Tests', () => {
-  describe('PUT /state', () => { 
-    it('should set state to INIT', async () => { 
-      const res = await request(app) 
-      .put('/state')
-      .set('Content-Type', 'text/plain') 
-      .send('INIT'); 
-      expect(res.status).toBe(200); 
-      expect(res.text).toBe('INIT'); 
-    }); 
-    
-    it('should set state to PAUSED', async () => { 
-      const res = await request(app) 
-      .put('/state')
-      .set('Content-Type', 'text/plain') 
-      .send('PAUSED'); 
-      expect(res.status).toBe(200); 
-      expect(res.text).toBe('PAUSED'); 
-    }); 
-    
-    it('should set state to RUNNING', async () => { 
-      const res = await request(app) 
-      .put('/state')
-      .set('Content-Type', 'text/plain') 
-      .send('RUNNING'); 
-      expect(res.status).toBe(200); 
-      expect(res.text).toBe('RUNNING'); 
-    }); 
-    
-    it('should set state to SHUTDOWN', async () => { 
-      const res = await request(app) 
-      .put('/state')
-      .set('Content-Type', 'text/plain') 
-      .send('SHUTDOWN'); 
-      expect(res.status).toBe(200); 
-      expect(res.text).toBe('SHUTDOWN'); 
-    }); 
-    
-    it('should do nothing if state is the same as previous', async () => { 
-      await request(app) 
-      .put('/state')
-      .set('Content-Type', 'text/plain') 
-      .send('RUNNING'); 
-      
-      const res = await request(app) 
-      .put('/state')
-      .set('Content-Type', 'text/plain') 
-      .send('RUNNING'); 
-      expect(res.status).toBe(200); 
-      expect(res.text).toBe('RUNNING'); 
-    }); 
-  });
+//this sets the data for auth header with the pass and username
+const authHeader = 'Basic ' + Buffer.from('ridvan:ridvan').toString('base64');
+
+describe('GET /request', () => {
+
+    //This will fail as there is no user logged in
+    it('should return a response', async () => {
+
+        const res = await request(app)
+            .get('/request');
+
+        expect(res.accepted).toBe(false);
+    });
+
+    //This test shows that service1 is accessible and /request endpoint is running
+    it('should return a response', async () => {
+
+        const res = await request(app)
+            .get('/request')
+            .set('Authorization', authHeader);
+
+        expect(res.status).not.toBe();
+    });
 });

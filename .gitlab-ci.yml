@@ -1,6 +1,7 @@
 stages: 
-  # - build 
+  - build 
   - test 
+  - analysis
   - deploy 
  
 image: docker/compose:latest
@@ -11,20 +12,20 @@ services:
 variables: 
   DOCKER_DRIVER: overlay2 
   DOCKER_TLS_CERTDIR: ""
+  NODE_ENV: ci
  
 before_script: 
-  - docker info 
-  - docker-compose --version
+  - export NODE_ENV=ci
 
  
-# build: 
-#   stage: build 
-#   tags:  
-#     - docker  
-#     - linux  
-#     - nodejs 
-#   script: 
-#     - docker-compose build --no-cache 
+build: 
+  stage: build 
+  tags:  
+    - docker  
+    - linux  
+    - nodejs 
+  script: 
+    - docker-compose build --no-cache 
 
 test: 
   stage: test 
@@ -36,9 +37,18 @@ test:
   after_script: 
     - docker-compose down
 
+analysis: 
+  stage: analysis 
+  image: node:18 # Use Node.js image for analysis stage
+  script: 
+    - cd Service1 
+    - npm install 
+    - npx eslint . # Run ESLint for Service1
+
 deploy: 
   stage: deploy 
   script: 
     - docker-compose up -d 
   only: 
     - main
+    - project

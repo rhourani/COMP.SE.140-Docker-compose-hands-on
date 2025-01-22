@@ -2,11 +2,11 @@ version: '3.8'
 
 services:
   nginx:
-    build: .
+    build: ./nginx
     image: nginx-image
     ports:
       - "8198:8198"
-      - "8197:8197"
+      - "8197:8197" #Expose port 8197, this is an addition to nginx conf for the API gateway
     depends_on:
       - service1
     networks:
@@ -25,8 +25,9 @@ services:
       - ridvanContainer
     environment:
       - HOSTNAME=service1
+      - NODE_ENV=local
     deploy:
-      replicas: 3  
+      replicas: 1  #normally creates 3 replicas but with state maangment, I used Redis but it took me a lot of time and I gave up on it
     labels: 
       - "service=sexposed_to_outside_service1.v1"
     
@@ -42,6 +43,7 @@ services:
       - 8199 #exposed only internally
     environment:
       - HOSTNAME=internal_service2.v1
+      - NODE_ENV=local
 networks:
   ridvanContainer:
     driver: bridge
