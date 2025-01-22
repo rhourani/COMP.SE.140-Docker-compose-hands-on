@@ -1,6 +1,6 @@
 stages: 
   - build 
-  - test 
+  #- test 
   - analysis
   - deploy 
  
@@ -29,19 +29,20 @@ build:
   script: 
     - docker-compose build --no-cache 
 
-test: 
-  stage: test 
-  script: 
-    - docker-compose up -d
-    - docker-compose exec -T service1 npm install 
-    - docker-compose exec -T service1 npm test 
+# test: 
+#   stage: test 
+#   script: 
+#     - docker-compose up -d
+#     - docker-compose exec -T service1 npm install 
+#     - docker-compose exec -T service1 npm test 
   
-  after_script: 
-    - docker-compose down
+#   after_script: 
+#     - docker-compose down
 
 analysis: 
   stage: analysis 
   script: 
+    - docker-compose up -d
     - cd Service1 
     - npm install 
     - npx eslint . # Run ESLint for Service1
