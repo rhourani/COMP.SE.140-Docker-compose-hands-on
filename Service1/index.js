@@ -81,7 +81,7 @@ app.put('/state', (req, res) => {
     //Make the system return to 0 stage
     if (currentState === "INIT" && newState === "INIT" && isAuthenticated(req)) {
         //Set next state and log transition history
-        logTransition(newState, currentState);// logTransition method logs the history of the system states and its reusable
+        logTransition(newState);// logTransition method logs the history of the system states and its reusable
         currentState = newState;
 
         //Reset state of the system >> already state resetted
@@ -96,7 +96,7 @@ app.put('/state', (req, res) => {
 
         //Set next state and log transition history
         newState = 'RUNNING';
-        logTransition(newState, currentState);
+        logTransition(newState);
         currentState = newState;
 
         res.set('Content-Type', 'text/plain');
@@ -111,7 +111,7 @@ app.put('/state', (req, res) => {
     else if ((currentState === "RUNNING" || currentState === "PAUSED")) {
         if (newState === "INIT") {
             //Set next state and log transition history
-            logTransition(newState, currentState);// logTransition method logs the history of the system states and its reusable
+            logTransition(newState);// logTransition method logs the history of the system states and its reusable
             currentState = newState;
 
             //Reset state of the system >> already state resetted
@@ -122,6 +122,7 @@ app.put('/state', (req, res) => {
         }
         else if (newState === "SHUTDOWN") {
             logTransition(newState);
+            currentState = newState;
             exec('docker-compose down', (error, stdout, stderr) => {// This command will shut down the containers
                 if (error) {
                     return res.set('Content-Type', 'text/plain')
@@ -140,7 +141,7 @@ app.put('/state', (req, res) => {
         }
     }
     res.set('Content-Type', 'text/plain');
-    return res.status(200).send(currentState);
+    return res.status(200).send("\n Current system state is: " + currentState + " Please if you see INIT and you are not authorized, try to log in. \n");
 });
 
 app.get('/state', (req, res) => {
@@ -175,7 +176,7 @@ app.get('/run-log', (req, res) => {
 });
 
 //helper methods
-function logTransition(newState, currentState) {
+function logTransition(newState) {
     const timestamp = new Date().toISOString();
     var logEntry = `${timestamp}: ${currentState}->${newState}`;
     stateHistory.push(logEntry);
