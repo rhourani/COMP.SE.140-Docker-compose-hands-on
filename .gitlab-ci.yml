@@ -16,7 +16,7 @@ variables:
  
 before_script: 
   - export NODE_ENV=ci
-  - docker-compose --version
+ # - docker-compose --version
 
  
 # build: 
