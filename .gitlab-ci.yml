@@ -40,7 +40,7 @@ before_script:
 
 analysis: 
   stage: analysis 
-  image: node:14 # Use Node.js image for analysis stage
+  image: node:18 # Use Node.js image for analysis stage
   script: 
     - cd Service1 
     - npm install 
