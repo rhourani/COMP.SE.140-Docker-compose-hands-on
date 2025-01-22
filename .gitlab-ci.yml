@@ -1,6 +1,6 @@
 stages: 
-  #- build 
-  #- test 
+  - build 
+  - test 
   - analysis
   - deploy 
  
@@ -16,27 +16,26 @@ variables:
  
 before_script: 
   - export NODE_ENV=ci
- # - docker-compose --version
 
  
-# build: 
-#   stage: build 
-#   tags:  
-#     - docker  
-#     - linux  
-#     - nodejs 
-#   script: 
-#     - docker-compose build --no-cache 
+build: 
+  stage: build 
+  tags:  
+    - docker  
+    - linux  
+    - nodejs 
+  script: 
+    - docker-compose build --no-cache 
 
-# test: 
-#   stage: test 
-#   script: 
-#     - docker-compose up -d
-#     - docker-compose exec -T service1 npm install 
-#     - docker-compose exec -T service1 npm test 
+test: 
+  stage: test 
+  script: 
+    - docker-compose up -d
+    - docker-compose exec -T service1 npm install 
+    - docker-compose exec -T service1 npm test 
   
-#   after_script: 
-#     - docker-compose down
+  after_script: 
+    - docker-compose down
 
 analysis: 
   stage: analysis 
